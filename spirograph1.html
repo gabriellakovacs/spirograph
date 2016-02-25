@@ -41,6 +41,9 @@
     input:focus, button:focus {
         outline: none;
     }
+    .hide {
+        visibility: hidden;
+    }
 
     </style>
 
@@ -60,9 +63,12 @@
         <label for="strokeColor">stroke color</label>
         <input id="strokeColor" type="color">
         <br>
-        <label for="spirographLineW">line weight</label>
-        <input id="spirographLineW" type="number">
-        
+        <label for="spirographPenW">line weight</label>
+        <input id="spirographPenW" type="number">
+        <br>
+        <button id="fixedCircleCenter">reset the center of the spirograph</button>
+        <p class="hide instruction">Double click wherever you want the spirograph center to be placed</p>
+
     </div>
     
 
@@ -106,27 +112,50 @@
     //PARAMETERS -------------------------------
     //FIXED CIRCLE PARAMETERS
     var fixedCircleR = 200;
-    var fixedCircleColor = 'rgb(0, 0, 244)';
-    //FIXED CIRCLE PARAMETERS
     var fixedCircleCenter = new Point(w/2, h/2);
-    var movingCircle = new Circle(Math.sin(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.x, Math.cos(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.y, movingCircleR);
-    var spirographLineStart = new Point(Math.sin(-(step/10) * fixedCircleR/movingCircleR) * movingCircleR + movingCircle.x, Math.cos(-(step/10)*fixedCircleR/movingCircleR) * movingCircleR + movingCircle.y);
-    var spirographLineW = 1;
+
+
     //MOVING CIRCLE PARAMETERS
-
     var movingCircleR = 50;
-    var movingCircleColor = 'rgba(250, 97, 2, .5)';
+    var movingCircle = new Circle(Math.sin(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.x, Math.cos(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.y, movingCircleR);
 
-    //MOVING DOT
-
-    var movingDotR = 5;
-    var movingDotColor = 'rgba(255, 255, 200, 1)';
+    //SPIROGRAPH DRAWING PARAMETERS
+     var spirographLineStart = new Point(Math.sin(-(step/10) * fixedCircleR/movingCircleR) * movingCircleR + movingCircle.x, Math.cos(-(step/10)*fixedCircleR/movingCircleR) * movingCircleR + movingCircle.y);
+    var spirographPenW = 1;
+ 
+    var spirographPenColor = 'rgba(255, 255, 200, 1)';
 
     //BACKGROUND RELATED PARAMETER
     var backgroundColor = '#1A1B1C';
 
     var start = document.getElementsByClassName("start")[0];
     var stop = document.getElementsByClassName("stop")[0];
+    var setCenter = document.getElementById("fixedCircleCenter");
+    var instruction = document.getElementsByClassName("instruction")[0];
+
+    setCenter.onclick = function(){
+        instruction.className = "instruction";
+
+        clickToSetCenter = function() {
+            var cursorX = event.clientX;     
+            var cursorY = event.clientY;
+            fixedCircleCenter = new Point(cursorX, cursorY);
+            
+            movingCircle = new Circle(Math.sin(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.x, Math.cos(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.y, movingCircleR);
+
+            spirographLineStart = new Point(Math.sin(-(step/10) * fixedCircleR/movingCircleR) * movingCircleR + movingCircle.x, Math.cos(-(step/10)*fixedCircleR/movingCircleR) * movingCircleR + movingCircle.y);
+            
+
+            document.removeEventListener("dblclick", clickToSetCenter);
+            instruction.className = "instruction hide";
+            window.alert("i am done listening");
+        }
+        document.addEventListener("dblclick", clickToSetCenter);
+
+ 
+
+    }
+
     start.onclick = function() {
         animProp.animate = true;
         animate();
@@ -139,14 +168,14 @@
             movingCircleR = document.getElementById('movingCircleR').value;
         }
         if (document.getElementById('strokeColor').value) {
-            movingDotColor = document.getElementById('strokeColor').value;
+            spirographPenColor = document.getElementById('strokeColor').value;
         }
-        if (document.getElementById('spirographLineW').value) {
-            spirographLineW = document.getElementById('spirographLineW').value;
+        if (document.getElementById('spirographPenW').value) {
+            spirographPenW = document.getElementById('spirographPenW').value;
         }
         movingCircle = new Circle(Math.sin(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.x, Math.cos(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.y, movingCircleR);
         spirographLineStart = new Point(Math.sin(-(step/10) * fixedCircleR/movingCircleR) * movingCircleR + movingCircle.x, Math.cos(-(step/10)*fixedCircleR/movingCircleR) * movingCircleR + movingCircle.y);
-        c.lineWidth = spirographLineW;
+        c.lineWidth = spirographPenW;
     }
 
     stop.onclick = function() {
@@ -155,21 +184,6 @@
         stop.id = "active"
     }
 
-    
-    
-
-
-
-
-
-//PARAMETERS -------------------------------
-
-
-
-
-
-
-//------------------------------------------- 
 //MAIN FUNCTION --------------------------------    
 //BACKGROUND --------------------------------
 c.fillStyle = backgroundColor;
@@ -181,19 +195,13 @@ function animate() {
         
 
         //FIXED CIRCLE --------------------------------
-        c.strokeStyle = fixedCircleColor;
         var fixedCircle = new Circle(fixedCircleCenter.x, fixedCircleCenter.y, fixedCircleR);
-        //fixedCircle.draw();
-
-
-        
+       
         //MOVING CIRCLE --------------------------------
-        c.strokeStyle = movingCircleColor;
         movingCircle = new Circle(Math.sin(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.x, Math.cos(step/10) * (fixedCircleR - movingCircleR) + fixedCircleCenter.y, movingCircleR);
-        //movingCircle.draw();
 
-        //MOVING DOT --------------------------------
-        c.strokeStyle = movingDotColor;
+        //DRAWING WITH SPIROGRAPH --------------------------------
+        c.strokeStyle = spirographPenColor;
         var spirographLineEnd = new Point(Math.sin(-(step/10) * fixedCircleR/movingCircleR) * movingCircleR + movingCircle.x, Math.cos(-(step/10)*fixedCircleR/movingCircleR) * movingCircleR + movingCircle.y);
         drawLine(spirographLineStart, spirographLineEnd);
 
