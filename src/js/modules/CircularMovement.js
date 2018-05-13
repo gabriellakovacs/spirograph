@@ -1,3 +1,16 @@
+/**
+ * Creates a circle shaped trajectory initiated with
+ * random step size and
+ * random radius
+ * starts at angle 0 (currentStep)
+ *
+ * @param  {Object} center a Point Object
+ * @param  {Object} context canvas context for drawing the movement trajectory
+ *
+**/
+
+'use strict';
+
 import Point from './Point.js';
 
 export default class CircularMovement {
@@ -11,16 +24,14 @@ export default class CircularMovement {
     }
 
     move() {
-
         this.movingPoint.x = Math.cos(this.currentStep) * this.radius + this.center.x;
         this.movingPoint.y = Math.sin(this.currentStep) * this.radius + this.center.y;
-
         this.currentStep += this.step;
     }
 
     draw() {
         this.context.beginPath();
-        this.context.strokeStyle = 'white';
+        this.context.strokeStyle = '#ffffff';
         this.context.arc(this.center.x, this.center.y, this.r, 0, 7);
         this.context.stroke();
         this.context.closePath();

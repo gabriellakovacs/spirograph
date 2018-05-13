@@ -1,3 +1,18 @@
+/**
+ * Creates a spirograph
+ * with the specified number of wheels (default: 2)
+ * the wheels are embedded in eachother, on every call to the move method
+ * each wheel's center point is rotated around the previous wheel's center point
+ *
+ *
+ * @param  {Object} context canvas context for drawing the movement of the spirograph
+ * @param  {Number} wheelListLength number of wheels building up the spirograph
+ * @param  {String} color hexadecimalcolor code, default: '#ff0000'
+ *
+**/
+
+'use strict';
+
 import CircularMovement from './CircularMovement.js';
 import Point from './Point.js';
 
@@ -7,26 +22,21 @@ export default class Spirograph {
         this.context = context;
         this.color = color;
         this.wheelListLength = wheelListLength;
-
         this.wheelList = [];
-
-        for(var i = 0; i < this.wheelListLength; i++) {
-            this.addWheel();
-        }
-        this.x = this.wheelList[this.wheelListLength - 1].x;
-        this.y = this.wheelList[this.wheelListLength - 1].y;
-
-        window.addEventListener('resize', () => {
-            this.handleResize();
-         })
+        this.initWheels();
+        this.position = new Point(this.wheelList[this.wheelListLength - 1].x, this.wheelList[this.wheelListLength - 1].y);
+        this.previousPosition = new Point(this.position.x, this.position.y);
+        window.addEventListener('resize', () => { this.handleResize(); })
     }
 
     handleResize() {
+        this.wheelList[i].center = new Point(window.innerWidth / 2, window.innerHeight / 2);
+        this.wheelList[i].move();
+    }
+
+    initWheels() {
         for(var i = 0; i < this.wheelListLength; i++) {
-            this.wheelList[i].center = new Point(window.innerWidth / 2, window.innerHeight / 2);
-            this.wheelList[i].move();
-            // this.wheelList[i].x = Math.cos(this.wheelList[i].currentStep) * this.wheelList[i].radius + this.wheelList[i].center.x;
-            // this.wheelList[i].y = Math.sin(this.wheelList[i].currentStep) * this.wheelList[i].radius + this.wheelList[i].center.y;
+            this.addWheel();
         }
     }
 
@@ -46,39 +56,24 @@ export default class Spirograph {
     }
 
     move() {
-
-        // this.moveSystem(this.wheelListLength);
+        this.previousPosition.x = this.position.x;
+        this.previousPosition.y = this.position.y;
 
         for(var i = 0; i < this.wheelListLength; i++) {
-
-         this.wheelList[i].move();
-        //this.wheelList[i].draw();
+            this.wheelList[i].move();
         }
 
-        var next = this.wheelList[this.wheelListLength - 1];
-
-        this.x = next.movingPoint.x;
-        this.y = next.movingPoint.y;
-
+        this.position.x = this.wheelList[this.wheelListLength - 1].movingPoint.x;
+        this.position.y = this.wheelList[this.wheelListLength - 1].movingPoint.y;
     }
 
     draw() {
-        if(!this.prev) {
-            this.prev = new Point(0,0);
-                this.prev.x = this.wheelList[this.wheelListLength - 1].x;
-            this.prev.y = this.wheelList[this.wheelListLength - 1].y;
-        }
-
         this.context.beginPath();
         this.context.strokeStyle = this.color;
-        this.context.moveTo(this.prev.x, this.prev.y);
-        this.context.lineTo(this.x, this.y);
+        this.context.moveTo(this.previousPosition.x, this.previousPosition.y);
+        this.context.lineTo(this.position.x, this.position.y);
         this.context.closePath();
         this.context.stroke();
-
-        this.prev.x = this.x;
-        this.prev.y = this.y;
-
     }
 
     animate() {

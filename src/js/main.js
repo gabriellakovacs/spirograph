@@ -1,3 +1,5 @@
+'use strict';
+
 import CanvasEnvironment from './modules/CanvasEnvironment.js';
 import Spirograph from './modules/Spirograph.js';
 
@@ -11,7 +13,6 @@ window.onload = function() {
     canvasEnvironment.animatableObjectList.push(spirograph);
 
     addControllers();
-
 
     function addControllers() {
         var gui = new dat.GUI();
@@ -31,17 +32,13 @@ window.onload = function() {
             addWheelController();
         });
 
-
-
         function addWheelController() {
-            var f1 = gui.addFolder(`Wheel ${wheelControllerList.length}`);
-            f1.add(spirograph.wheelList[i], 'step');
-            f1.add(spirograph.wheelList[i], 'radius');
-            f1.open();
+            var wheelControlFolder = gui.addFolder(`Wheel ${wheelControllerList.length}`);
+            wheelControlFolder.add(spirograph.wheelList[i], 'step');
+            wheelControlFolder.add(spirograph.wheelList[i], 'radius');
+            wheelControlFolder.open();
 
-            wheelControllerList.push(f1);
+            wheelControllerList.push(wheelControlFolder);
         }
-
-
     }
 }
