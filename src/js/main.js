@@ -21,6 +21,7 @@ window.onload = function() {
         gui.add(canvasEnvironment, 'clear');
 
         gui.addColor(spirograph, 'color');
+        gui.add(spirograph, 'switchRainbowMode');
 
         var addWheelControllerButton = gui.add(spirograph, 'addWheel');
         var wheelControllerList = [];

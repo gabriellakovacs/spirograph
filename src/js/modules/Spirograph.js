@@ -15,7 +15,7 @@
 
 import CircularMovement from './CircularMovement.js';
 import Point from './Point.js';
-
+import ColorGradient from './ColorGradient.js';
 
 export default class Spirograph {
     constructor(context, wheelListLength = 2, color = '#ff0000') {
@@ -26,7 +26,9 @@ export default class Spirograph {
         this.initWheels();
         this.position = new Point(this.wheelList[this.wheelListLength - 1].x, this.wheelList[this.wheelListLength - 1].y);
         this.previousPosition = new Point(this.position.x, this.position.y);
-        window.addEventListener('resize', () => { this.handleResize(); })
+        this.isRainbowMode = false;
+        this.colorGradient = new ColorGradient();
+        window.addEventListener('resize', () => { this.handleResize(); });
     }
 
     handleResize() {
@@ -55,6 +57,10 @@ export default class Spirograph {
         this.wheelListLength = Math.max(this.wheelListLength, this.wheelList.length);
     }
 
+    switchRainbowMode() {
+        this.isRainbowMode = !this.isRainbowMode;
+    }
+
     move() {
         this.previousPosition.x = this.position.x;
         this.previousPosition.y = this.position.y;
@@ -69,6 +75,9 @@ export default class Spirograph {
 
     draw() {
         this.context.beginPath();
+
+        if(this.isRainbowMode) { this.color = this.colorGradient.next().rgbColor(); }
+
         this.context.strokeStyle = this.color;
         this.context.moveTo(this.previousPosition.x, this.previousPosition.y);
         this.context.lineTo(this.position.x, this.position.y);
