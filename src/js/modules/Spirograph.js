@@ -5,7 +5,8 @@
  * each wheel's center point is rotated around the previous wheel's center point
  *
  *
- * @param  {Object} context canvas context for drawing the movement of the spirograph
+ * @param  {Object} canvasForMovement canvas context for drawing the movement of the spirograph
+ * @param  {Object} contextForMechanics canvas context for drawing the mechanics of the spirograph
  * @param  {Number} wheelListLength number of wheels building up the spirograph
  * @param  {String} color hexadecimalcolor code, default: '#ff0000'
  *
@@ -18,15 +19,16 @@ import Point from './Point.js';
 import ColorGradient from './ColorGradient.js';
 
 export default class Spirograph {
-    constructor(context, wheelListLength = 2, color = '#ff0000') {
-        this.context = context;
+    constructor(canvasForMovement, canvasForMechanics, wheelListLength = 2, color = '#ff0000') {
+        this.canvasForMovement = canvasForMovement;
+        this.canvasForMechanics = canvasForMechanics;
         this.color = color;
         this.wheelListLength = wheelListLength;
         this.wheelList = [];
         this.initWheels();
-        this.position = new Point(this.wheelList[this.wheelListLength - 1].x, this.wheelList[this.wheelListLength - 1].y);
-        this.previousPosition = new Point(this.position.x, this.position.y);
+        this.position = this.wheelList[this.wheelListLength - 1];
         this.isRainbowMode = false;
+        this.isMechanicsMode = false;
         this.colorGradient = new ColorGradient();
         window.addEventListener('resize', () => { this.handleResize(); });
     }
@@ -47,46 +49,47 @@ export default class Spirograph {
         var currentWheelListLength = this.wheelList.length;
 
         if(currentWheelListLength === 0) {
-            var wheel = new CircularMovement(new Point(window.innerWidth / 2, window.innerHeight / 2),  this.context);
+            var wheel = new CircularMovement(new Point(window.innerWidth / 2, window.innerHeight / 2));
         } else {
-            var wheel = new CircularMovement(this.wheelList[currentWheelListLength - 1].movingPoint,  this.context);
+            var wheel = new CircularMovement(this.wheelList[currentWheelListLength - 1].movingPoint);
         }
 
         this.wheelList.push(wheel);
 
         this.wheelListLength = Math.max(this.wheelListLength, this.wheelList.length);
-    }
-
-    switchRainbowMode() {
-        this.isRainbowMode = !this.isRainbowMode;
+        this.position = this.wheelList[this.wheelListLength - 1];
     }
 
     move() {
-        this.previousPosition.x = this.position.x;
-        this.previousPosition.y = this.position.y;
 
         for(var i = 0; i < this.wheelListLength; i++) {
             this.wheelList[i].move();
         }
 
-        this.position.x = this.wheelList[this.wheelListLength - 1].movingPoint.x;
-        this.position.y = this.wheelList[this.wheelListLength - 1].movingPoint.y;
     }
 
-    draw() {
-        this.context.beginPath();
+    drawMovement() {
 
         if(this.isRainbowMode) { this.color = this.colorGradient.next().rgbColor(); }
+        this.position.drawMovement(this.canvasForMovement, this.color);
 
-        this.context.strokeStyle = this.color;
-        this.context.moveTo(this.previousPosition.x, this.previousPosition.y);
-        this.context.lineTo(this.position.x, this.position.y);
-        this.context.closePath();
-        this.context.stroke();
+    }
+
+    drawMechanics() {
+        for(var i = 0; i < this.wheelListLength; i++) {
+            this.wheelList[i].drawMechanics(this.canvasForMechanics);
+        }
     }
 
     animate() {
         this.move();
-        this.draw();
+        this.drawMovement();
+
+        this.canvasForMechanics.clear();
+
+        if(this.isMechanicsMode) {
+            this.drawMechanics();
+        }
+
     }
 }
